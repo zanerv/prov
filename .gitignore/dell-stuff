@@ -1,0 +1,117 @@
+Dell iDRAC virtual media via remote console won't connect with error Channel Access Denied
+racadm -r <IP> -u root -p calvin sslresetcfg
+racadm -r <IP> -u root -p calvin racreset soft
+
+# Get the xml config
+racadm get -t xml -f /root/meh
+
+# Set the xml config
+racadm set -t xml -f /root/meh
+
+while read line; do nohup /opt/dell/srvadmin/sbin/racadm -r $line -u root -p calvin deletevd:Disk.Virtual.0:RAID.Integrated.1-1 & ; done < wlist
+while read line; do /root/Get_Vdisks.ksh  -i $line -u root -p calvin; done < wlist
+nohup /opt/dell/srvadmin/sbin/racadm -r <IP> -u root -p calvin deletevd:Disk.Virtual.0:RAID.Integrated.1-1 & 
+Disk.Virtual.0:RAID.Integrated.1-1 
+/opt/dell/srvadmin/sbin/racadm --nocertwarn -r <IP> -u root -p calvin racreset
+/opt/dell/srvadmin/sbin/racadm --nocertwarn -r <IP> -u root -p calvin jobqueue view
+/opt/dell/srvadmin/sbin/racadm --nocertwarn -r <IP> -u root -p calvin jobqueue delete -i JID_CLEARALL_FORCE
+/opt/dell/srvadmin/sbin/racadm --nocertwarn -r <IP> -u root -p calvin raid get vdisks
+/opt/dell/srvadmin/sbin/racadm --nocertwarn -r <IP> -u root -p calvin raid deletevd:Disk.Virtual.0:RAID.Integrated.1-1
+/opt/dell/srvadmin/sbin/racadm --nocertwarn -r <IP> -u root -p calvin jobqueue create RAID.Integrated.1-1
+/opt/dell/srvadmin/sbin/racadm --nocertwarn -r <IP> -u root -p calvin serveraction hardreset
+/opt/dell/srvadmin/sbin/racadm --nocertwarn -r <IP> -u root -p calvin get BIOS.BiosBootSettings.
+/opt/dell/srvadmin/sbin/racadm --nocertwarn -r <IP> -u root -p calvin set BIOS.BiosBootSettings.BootMode Bios
+/opt/dell/srvadmin/sbin/racadm --nocertwarn -r <IP> -u root -p calvin jobqueue create BIOS.Setup.1-1 -r pwrcycle -s TIME_NOW
+/opt/dell/srvadmin/sbin/racadm --nocertwarn -r <IP> -u root -p calvin serveraction powercycle
+/opt/dell/srvadmin/sbin/racadm --nocertwarn -r <IP> -u root -p calvin set idrac.serverboot.FirstBootDevice VCD-DVD
+/opt/dell/srvadmin/sbin/racadm --nocertwarn -r <IP> -u root -p calvin set idrac.serverboot.BootOnce Enabled
+http://www.dell.com/support/manuals/us/en/19/idrac8-with-lc-v2.05.05.05/racadm_idrac_pub-v1/lclog?guid=guid-a0e7cfb8-d01c-4695-afa9-dff5976feebd&lang=en-us
+/opt/dell/srvadmin/sbin/racadm -r <IP> -u root -p calvin --nocertwarn lclog view -s critical
+
+while read line; do nohup /opt/dell/srvadmin/sbin/racadm -r $line -u root -p calvin serveraction hardreset & ; done < wlist
+
+racadm raid createvd:<Controller FQDD> -rl {r0|r1|r5|r6|r10|r50|r60} [-wp {wt|wb}] [-rp {nra|ra|ara}]
+[-ss {1k|2k|4k|8k|16k|32k|64k|128k|256k|512k|1M|2M|4M|8M|16M}] -pdkey:<comma separated PD FQDD>
+[-dcp {enabled|disabled|default}] [-name <VD name>] [-size <VD size>{b|k|m|g|t}]
+
+raid createvd:RAID.Integrated.1-1 -rl r1 -wp wb -rp ra -ss 64k -dcp default -name sda -size <Gb>g
+:OS:-rl r1 -wp wb -rp ra -ss 64k -dcp default:sdi:8:2:<Gb>g:::RAID.Integrated.1-1
+
+for i in $(cat mgmt-list); do echo $(/opt/dell/srvadmin/sbin/racadm -r $i -u root -p calvin set idrac.serverboot.FirstBootDevice VCD-DVD; /opt/dell/srvadmin/sbin/racadm -r $i -u root -p calvin set idrac.serverboot.BootOnce Enabled) & done |cat -n
+---->
+PRE BOOT
+while read line; do /opt/dell/srvadmin/sbin/racadm -r $line --nocertwarn -u root -p calvin set idrac.serverboot.FirstBootDevice VCD-DVD ; /opt/dell/srvadmin/sbin/racadm -r $line --nocertwarn -u root -p calvin set idrac.serverboot.BootOnce Enabled; done < /home/meh
+
+while read line; do echo `nohup /opt/dell/srvadmin/bin/vmcli -r $line -u root -p calvin -c /home/meh/RHEL7.2_x86_64.iso &`& done < /home/meh/meh
+
+while read line; do echo `nohup /opt/dell/srvadmin/sbin/racadm -r $line --nocertwarn -u root -p calvin serveraction powercycle &`& done < /home/meh/meh
+<----
+
+for i in <IP> <IP>; do echo $(/opt/dell/srvadmin/sbin/racadm -r $i -u root -p calvin set idrac.serverboot.FirstBootDevice VCD-DVD; /opt/dell/srvadmin/sbin/racadm -r $i -u root -p calvin set idrac.serverboot.BootOnce Enabled) & done |cat -n
+
+for i in $(cat mgmt-list); do echo $(nohup /opt/dell/srvadmin/bin/vmcli -r $i -u root -p calvin -c RHEL7.2_x86_64.iso &) & done |cat -n
+
+for i in $(cat /root/lists/to_install_2nd_june.txt); do echo $(/opt/dell/srvadmin/sbin/racadm -r $i -u root -p calvin serveraction powercycle) & done |cat -n
+
+
+for i in `cat mgmt-list`; do echo $i; echo $(/opt/dell/srvadmin/sbin/racadm -r $i -u root -p calvin set idrac.serverboot.FirstBootDevice VCD-DVD; /opt/dell/srvadmin/sbin/racadm -r $i -u root -p calvin set idrac.serverboot.BootOnce Enabled; /opt/dell/srvadmin/bin/vmcli -r $i -u root -p calvin -c /home/meh/RHEL7.2_x86_64.iso) & done
+
+for i in `cat mgmt-list`; do /opt/dell/srvadmin/sbin/racadm -r $i -u root -p calvin serveraction powercycle; sleep 30; done 
+
+for i in <IP> <IP>; do echo $i; echo $(nohup /root/Create_Vdisc.ksh -i $i -u root -p calvin -c /root/NAME_NODES.raid -t OS,APP &)& done
+
+for i in <IP> <IP>; do echo $i; echo $(nohup /root/Remove_Virtual_Disks.ksh -i $i -u root -p calvin -f &)& done
+for i in `cat meh`; do echo $i; /opt/dell/srvadmin/sbin/racadm -r $i -u root -p calvin raid get vdisks; done
+
+
+---Get SSL---
+for i in `cat mgmt-list`; do echo $i; /opt/dell/srvadmin/sbin/racadm -r $i -u root -p calvin get idrac.webserver.SSLEncryptionBitLength; done
+for i in `cat mgmt-list`; do echo $i; /opt/dell/srvadmin/sbin/racadm -r $i -u root -p calvin get idrac.webserver.tlsprotocol; done
+---Set SSL---
+for i in `cat mgmt-list`; do echo $i; /opt/dell/srvadmin/sbin/racadm -r $i -u root -p calvin set idrac.webserver.SSLEncryptionBitLength 1; done
+for i in `cat mgmt-list`; do echo $i; /opt/dell/srvadmin/sbin/racadm -r $i -u root -p calvin set idrac.webserver..tlsprotocol 0; done
+
+nohup /opt/dell/srvadmin/bin/vmcli -r <IP> -u root -p calvin -c /root/RHEL7.2_x86_64.iso & 
+/opt/dell/srvadmin/sbin/racadm -r <IP> -u root -p calvin serveraction powercycle
+nohup ./isoserve -dir="/home/meh" -port "9999" >/dev/null 2>&1 &
+
+
+# add "racadm -r server -u user -p password" if not used in ssh + racadm mode 
+# get PDisks 
+ 
+raid get pdisks -o -p size,state,hotspare 
+ 
+# get VDisks 
+ 
+raid get vdisks -o -p name,size,layout,state 
+ 
+# Remove VDisks 
+ 
+raid clearconfig:RAID.Integrated.1-1 
+ 
+# or vdisk after vdisk 
+ 
+raid deletevd:Disk.Virtual.0:RAID.Integrated.1-1 
+ 
+# apply the removal 
+ 
+jobqueue create RAID.Integrated.1-1  -s TIME_NOW --realtime 
+ 
+# check again to not have any 
+ 
+raid get vdisks -o -p name,size,layout,state 
+ 
+# create new VDisks 
+ 
+raid createvd:RAID.Integrated.1-1 -rl r1 -wp wb -rp ra -ss 64k -pdkey:Disk.Bay.12:Enclosure.Internal.0-1:RAID.Integrated.1-1,Disk.Bay.13:Enclosure.Internal.0-1:RAID.Integrated.1-1 -dcp default -name sda -size <Gb>g 
+raid createvd:RAID.Integrated.1-1 -rl r1 -wp wb -rp ra -ss 64k -pdkey:Disk.Bay.12:Enclosure.Internal.0-1:RAID.Integrated.1-1,Disk.Bay.13:Enclosure.Internal.0-1:RAID.Integrated.1-1 -dcp default -name sdb -size <Gb>g 
+raid createvd:RAID.Integrated.1-1 -rl r1 -wp wb -rp ra -ss 64k -pdkey:Disk.Bay.12:Enclosure.Internal.0-1:RAID.Integrated.1-1,Disk.Bay.13:Enclosure.Internal.0-1:RAID.Integrated.1-1 -dcp default -name sdc -size <Gb>g 
+raid createvd:RAID.Integrated.1-1 -rl r1 -wp wb -rp ra -ss 64k -pdkey:Disk.Bay.12:Enclosure.Internal.0-1:RAID.Integrated.1-1,Disk.Bay.13:Enclosure.Internal.0-1:RAID.Integrated.1-1 -dcp default -name sdd -size <Gb>g 
+ 
+# apply raid config 
+ 
+jobqueue create RAID.Integrated.1-1  -s TIME_NOW --realtime 
+ 
+# check again to see the new good vdisks 
+ 
+raid get vdisks -o -p name,size,layout,state
