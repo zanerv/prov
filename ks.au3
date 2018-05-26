@@ -76,14 +76,12 @@ Local Const $sMessage = "Select Network Design"
 Local $oExcel = _Excel_Open() ;(False)
 
 Local $sFileOpenDialog = FileOpenDialog("Open file", "C:\Work\VPMO\" & "\", "Network Design (*.xls;*.xlsx)", 1)
-;~ Local $sFileOpenDialog = "C:\Work\VPMO\141495\KC_141495_3Q17-LR-ITL.xlsx"
 If @error Then
 	; Display the error message.
 	MsgBox($MB_SYSTEMMODAL, "", "No file(s) were selected.")
 	Exit
 EndIf
 
-;Local $file = @ScriptDir & "\VPMO 140857 FRFDCA60.xls"
 If @error Then Exit MsgBox($MB_SYSTEMMODAL, "Excel import", "Error opening " & $sFileOpenDialog & @CRLF & "@error = " & @error & ", @extended = " & @extended)
 
 Local $oWorkbook = _Excel_BookOpen($oExcel, $sFileOpenDialog)
