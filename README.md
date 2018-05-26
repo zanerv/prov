@@ -1,7 +1,7 @@
 # ks.au3
-While at ECORP I was building linux servers/VMs in bulk, so this does exactly that
+While at ECORP I was building linux(redhat) servers(HP/Dell/Hitachi/VM)s in bulk, so this does exactly that
 - download/extract the standard redhat iso
-- gets network configuration from xls and adds it to iso for each server/VM
+- gets network configuration from xls and adds it to iso for each server
 - creates the iso with the new changes for unattended linux installation
 - starts the installation and performs some postinstall *things*
 - a few more *things*
